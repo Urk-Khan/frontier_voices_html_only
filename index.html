@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Medicare Fronter Voice Bot</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#EEF0EC;--panel:#FBFBF9;--ink:#18222D;--muted:#66707A;--line:#D8DCD5;
+  --accent:#1E6B5A;--accent-ink:#FFFFFF;--soft:#D7E7E0;--bar:#BEC5BF;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#12181D;--panel:#1A2128;--ink:#E8ECEA;--muted:#94A0A8;--line:#2A333B;
+  --accent:#5FBFA6;--accent-ink:#0E1A16;--soft:#1F3A33;--bar:#3A444C;}}
+:root[data-theme="dark"]{
+  --paper:#12181D;--panel:#1A2128;--ink:#E8ECEA;--muted:#94A0A8;--line:#2A333B;
+  --accent:#5FBFA6;--accent-ink:#0E1A16;--soft:#1F3A33;--bar:#3A444C;}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:"Schibsted Grotesk",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  -webkit-font-smoothing:antialiased;line-height:1.5}
+main{max-width:760px;margin:0 auto;padding:clamp(40px,8vh,88px) 20px 64px}
+
+h1{font-size:clamp(2rem,5.4vw,3.1rem);line-height:1.05;letter-spacing:-.03em;font-weight:600;margin:0}
+.lede{color:var(--muted);margin:12px 0 28px;font-size:1.02rem;max-width:46ch}
+
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:22px}
+
+/* player */
+.player{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:18px;padding:14px 14px 14px 14px}
+.play{width:60px;height:60px;border-radius:50%;border:0;background:var(--accent);color:var(--accent-ink);
+  display:grid;place-items:center;cursor:pointer;transition:transform .15s ease}
+.play:active{transform:scale(.94)}
+.play svg{width:22px;height:22px}
+.play .i-pause{display:none}
+.play[aria-pressed="true"] .i-play{display:none}
+.play[aria-pressed="true"] .i-pause{display:block}
+
+.track{min-width:0}
+.wave{display:flex;align-items:center;gap:2px;height:44px;cursor:pointer;outline:none;border-radius:6px}
+.wave span{flex:1;min-width:1px;border-radius:2px;background:var(--bar);transition:background .12s}
+.wave span.on{background:var(--accent)}
+.wave:focus-visible{box-shadow:0 0 0 2px var(--panel),0 0 0 4px var(--accent)}
+.time{display:flex;justify-content:space-between;font-size:.78rem;color:var(--muted);margin-top:4px;font-variant-numeric:tabular-nums}
+
+.sel{position:relative}
+.sel select{appearance:none;-webkit-appearance:none;font:inherit;font-weight:500;color:var(--ink);
+  background:var(--paper);border:1px solid var(--line);border-radius:14px;
+  padding:12px 42px 12px 16px;cursor:pointer;min-width:140px}
+.sel select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.sel svg{position:absolute;right:14px;top:50%;width:14px;height:14px;transform:translateY(-50%);pointer-events:none;color:var(--muted)}
+
+/* pricing */
+.pricing{margin-top:clamp(48px,9vh,80px)}
+h2{font-size:clamp(1.5rem,3.6vw,2rem);letter-spacing:-.02em;font-weight:600;margin:0 0 18px}
+.price-row{display:grid;grid-template-columns:1fr auto;align-items:end;gap:24px;padding:22px 24px}
+.field label{display:block;font-size:.88rem;color:var(--muted);margin-bottom:8px}
+.field .sel{display:inline-block}
+.field .sel select{min-width:200px}
+.cta{display:inline-flex;align-items:center;justify-content:center;background:var(--accent);color:var(--accent-ink);
+  text-decoration:none;font-weight:600;font-size:1.05rem;padding:15px 30px;border-radius:999px;transition:transform .15s ease,filter .15s}
+.cta:hover{filter:brightness(1.08)}
+.cta:active{transform:scale(.97)}
+.cta:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.save{border-top:1px solid var(--line);padding:12px 24px;font-size:.88rem;color:var(--muted);display:flex;justify-content:space-between;gap:12px}
+.save b{color:var(--accent);font-weight:600}
+
+@media (max-width:600px){
+  .player{grid-template-columns:auto 1fr;gap:14px}
+  .player .sel{grid-column:1 / -1}
+  .player .sel select{width:100%}
+  .price-row{grid-template-columns:1fr;align-items:start}
+  .cta{width:100%}
+  .field .sel{display:block}
+  .field .sel select{width:100%}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+  <section aria-labelledby="t">
+    <h1 id="t">Fronter Voice Bot/AI Agent</h1>
+    <p class="lede">Hear a real fronter call. Switch voices to compare how each one sounds.</p>
+
+    <div class="panel player">
+      <button class="play" id="play" aria-pressed="false" aria-label="Play sample">
+        <svg class="i-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>
+        <svg class="i-pause" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1.2"/><rect x="14" y="5" width="4" height="14" rx="1.2"/></svg>
+      </button>
+      <div class="track">
+        <div class="wave" id="wave" role="slider" tabindex="0" aria-label="Playback position" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
+        <div class="time"><span id="cur">0:00</span><span id="dur">0:00</span></div>
+      </div>
+      <div class="sel">
+        <select id="voice" aria-label="Voice">
+          <option>Sara-1</option><option>Sara-2</option><option>Sara-3</option><option>John</option><option>Carson</option>
+        </select>
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg>
+      </div>
+    </div>
+  </section>
+
+  <section class="pricing" aria-labelledby="p">
+    <h2 id="p">Get started</h2>
+    <div class="panel">
+
+      <div class="price-row">
+        <div class="field">
+          <label for="bots">Number of bots</label>
+          <div class="sel">
+            <select id="bots">
+              <option selected>10 bots</option>
+              <option>25 bots</option>
+              <option>50 bots</option>
+              <option>75 bots</option>
+              <option>100 bots</option>
+              <option>100+ bots</option>
+            </select>
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg>
+          </div>
+        </div>  
+        <a class="cta" id="quote" href="#" target="_blank" rel="noopener">Get a quote</a>
+      </div>
+      
+            <div class="price-row">
+        <div class="field">
+          <label for="agents">Number of AI agents</label>
+          <div class="sel">
+            <select id="agents">
+              <option selected>10 agents</option>
+              <option>25 agents</option>
+              <option>50 agents</option>
+              <option>75 agents</option>
+              <option>100 agents</option>
+              <option>100+ agents</option>
+            </select>
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg>
+          </div>
+        </div>  
+        <a class="cta" id="quote-agents" href="#" target="_blank" rel="noopener">Get a quote</a>
+      </div>
+
+      <div class="save"><span>Minimum order: 10 bots or agents</span><span>Quotes are sent on WhatsApp</span></div>
+    </div>
+  </section>
+</main>
+
+<audio id="audio" preload="auto"></audio>
+<script>
+const AUDIO={"Carson": "audio/Carson.mp3", "John": "audio/John.mp3", "Sara-1": "audio/Sara-1.mp3", "Sara-2": "audio/Sara-2.mp3", "Sara-3": "audio/Sara-3.mp3"};
+const PEAKS={"Carson": [0.23, 0.42, 0.02, 0.59, 0.39, 0.49, 0.4, 0.58, 0.8, 0.56, 0.16, 0.03, 0.42, 0.74, 0.61, 0.49, 0.02, 0.12, 0.43, 0.54, 0.39, 0.07, 0.01, 0.83, 0.49, 0.67, 0.46, 0.53, 0.35, 0.45, 0.52, 0.37, 0.61, 0.44, 0.69, 0.67, 0.65, 0.77, 0.31, 0.2, 0.2, 0.12, 0.27, 0.4, 0.5, 0.57, 0.37, 0.62, 0.32, 0.25, 0.58, 0.27, 0.11, 0.07, 0.0, 0.01, 0.67, 0.73, 0.4, 0.27, 0.03, 0.24, 0.62, 0.49, 0.22, 0.09, 0.03, 0.01, 0.6, 0.8, 0.79, 0.73, 1.0, 0.22, 0.24, 0.28, 0.33, 0.59, 0.42, 0.41, 0.4, 0.34, 0.31, 0.51, 0.41, 0.01, 0.38, 0.32, 0.16, 0.0], "John": [0.4, 0.92, 0.11, 0.4, 0.66, 0.86, 0.38, 0.46, 0.55, 0.42, 0.19, 0.04, 0.36, 0.92, 1.0, 0.39, 0.06, 0.0, 0.3, 0.88, 0.53, 0.1, 0.03, 0.02, 0.84, 0.97, 0.58, 0.73, 0.77, 0.35, 0.77, 0.65, 0.73, 0.6, 0.79, 0.7, 0.62, 0.68, 0.5, 0.79, 0.71, 0.46, 0.08, 0.91, 0.76, 0.6, 0.68, 0.42, 0.65, 0.32, 0.37, 0.47, 0.27, 0.25, 0.13, 0.02, 0.02, 0.71, 0.93, 0.8, 0.45, 0.06, 0.42, 0.77, 0.62, 0.36, 0.25, 0.06, 0.05, 0.35, 0.92, 0.92, 0.73, 0.93, 0.34, 0.43, 0.35, 0.36, 0.36, 0.5, 0.64, 0.44, 0.33, 0.45, 0.79, 0.31, 0.37, 0.29, 0.22, 0.01], "Sara-1": [0.37, 0.56, 0.11, 0.5, 0.41, 0.59, 0.42, 0.58, 0.46, 0.41, 0.11, 0.0, 0.63, 0.78, 0.32, 0.31, 0.01, 0.4, 0.47, 0.3, 0.45, 0.01, 0.01, 0.64, 0.38, 0.81, 0.27, 0.59, 0.35, 0.24, 0.41, 0.51, 0.7, 0.48, 0.63, 0.58, 0.7, 0.5, 0.19, 0.23, 0.35, 0.51, 0.21, 0.61, 0.45, 0.31, 0.23, 0.61, 0.26, 0.38, 0.47, 0.14, 0.17, 0.09, 0.0, 0.0, 0.81, 0.76, 0.46, 0.46, 0.01, 0.34, 0.74, 0.49, 0.2, 0.09, 0.04, 0.0, 0.4, 0.77, 1.0, 0.75, 0.79, 0.27, 0.32, 0.3, 0.46, 0.47, 0.33, 0.38, 0.59, 0.38, 0.32, 0.48, 0.57, 0.33, 0.38, 0.26, 0.15, 0.0], "Sara-2": [0.28, 0.65, 0.18, 0.34, 0.4, 0.86, 0.39, 0.47, 0.54, 0.65, 0.39, 0.01, 0.02, 0.81, 0.52, 0.47, 0.5, 0.04, 0.31, 0.37, 0.76, 0.49, 0.01, 0.01, 0.57, 0.68, 0.33, 0.39, 0.32, 0.24, 0.22, 0.33, 0.29, 0.52, 0.32, 0.56, 0.53, 0.64, 0.3, 0.36, 0.52, 0.54, 0.3, 0.02, 0.82, 0.39, 0.51, 0.64, 0.44, 0.17, 0.71, 0.4, 0.39, 0.38, 0.11, 0.01, 0.74, 0.76, 0.61, 0.1, 0.05, 0.63, 0.93, 0.35, 0.27, 0.21, 0.01, 0.01, 0.74, 1.0, 0.65, 0.84, 0.42, 0.41, 0.49, 0.49, 0.35, 0.06, 0.64, 0.62, 0.36, 0.58, 0.64, 0.73, 0.41, 0.48, 0.43, 0.39, 0.26, 0.03], "Sara-3": [0.18, 0.69, 0.23, 0.31, 0.37, 0.62, 0.4, 0.51, 0.63, 0.31, 0.33, 0.01, 0.03, 0.9, 0.67, 0.41, 0.17, 0.0, 0.34, 0.45, 0.94, 0.32, 0.01, 0.01, 0.6, 0.42, 0.77, 0.27, 0.53, 0.37, 0.15, 0.48, 0.58, 0.58, 0.55, 0.69, 0.71, 0.61, 0.35, 0.21, 0.43, 0.55, 0.23, 0.35, 0.74, 0.47, 0.29, 0.27, 0.48, 0.23, 0.21, 0.46, 0.21, 0.11, 0.17, 0.01, 0.01, 0.61, 0.7, 0.39, 0.27, 0.03, 0.6, 0.66, 0.28, 0.13, 0.13, 0.01, 0.01, 0.47, 0.72, 1.0, 0.68, 0.62, 0.22, 0.21, 0.19, 0.17, 0.09, 0.01, 0.5, 0.56, 0.31, 0.4, 0.41, 0.52, 0.45, 0.35, 0.48, 0.03]};
+const audio=document.getElementById('audio'),play=document.getElementById('play'),
+  wave=document.getElementById('wave'),voice=document.getElementById('voice'),
+  cur=document.getElementById('cur'),dur=document.getElementById('dur');
+let bars=[];
+const fmt=s=>{s=Math.max(0,Math.floor(s||0));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
+
+function drawWave(name){
+  wave.innerHTML='';
+  bars=PEAKS[name].map(v=>{const b=document.createElement('span');b.style.height=Math.max(8,v*100)+'%';wave.appendChild(b);return b});
+  paint(0);
+}
+function paint(r){
+  const n=Math.round(r*bars.length);
+  bars.forEach((b,i)=>b.classList.toggle('on',i<n));
+  wave.setAttribute('aria-valuenow',Math.round(r*100));
+}
+function load(name,autoplay){
+  audio.pause();
+  audio.src=AUDIO[name];
+  drawWave(name);cur.textContent='0:00';
+  setState(false);
+  if(autoplay) audio.play().then(()=>setState(true)).catch(()=>{});
+}
+function setState(p){play.setAttribute('aria-pressed',p);play.setAttribute('aria-label',p?'Pause sample':'Play sample')}
+
+play.addEventListener('click',()=>{ if(audio.paused){audio.play().then(()=>setState(true)).catch(()=>{})} else {audio.pause();setState(false)} });
+voice.addEventListener('change',()=>load(voice.value,true));
+audio.addEventListener('loadedmetadata',()=>dur.textContent=fmt(audio.duration));
+audio.addEventListener('timeupdate',()=>{cur.textContent=fmt(audio.currentTime);if(audio.duration)paint(audio.currentTime/audio.duration)});
+audio.addEventListener('ended',()=>{setState(false);paint(1)});
+function seek(r){if(!audio.duration)return;audio.currentTime=Math.min(Math.max(r,0),1)*audio.duration;paint(r)}
+wave.addEventListener('click',e=>{const r=wave.getBoundingClientRect();seek((e.clientX-r.left)/r.width)});
+wave.addEventListener('keydown',e=>{if(!audio.duration)return;
+  if(e.key==='ArrowRight'){audio.currentTime=Math.min(audio.duration,audio.currentTime+2);e.preventDefault()}
+  if(e.key==='ArrowLeft'){audio.currentTime=Math.max(0,audio.currentTime-2);e.preventDefault()}});
+load('Sara-1',false);
+
+const WA='19177954404';
+function waLink(msg){return 'https://wa.me/'+WA+'?text='+encodeURIComponent(msg)}
+function wireQuote(selectId,btnId,product,unit){
+  const sel=document.getElementById(selectId),btn=document.getElementById(btnId);
+  const update=()=>{btn.href=waLink("Hi, I'd like a quote for the "+product+". Number of "+unit+": "+sel.value+".")};
+  sel.addEventListener('change',update);update();
+}
+wireQuote('bots','quote','Fronter Voice Bot','bots');
+wireQuote('agents','quote-agents','Fronter AI Agent','AI agents');
+</script>
+</body>
+</html>
